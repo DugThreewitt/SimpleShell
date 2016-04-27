@@ -154,27 +154,25 @@ char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs )
 
 void callCmd ( char * cmdPath, char ** myArgs )
 {
-	pid_t child;
+	pid_t child, childWait;
 	int status;
 
 	child = fork();
 
-	if( child < 0 )
+	if( child == 0 )
 	{
-		fprintf(stderr, "Could not fork.\n");
+		execv(cmdPath, myArgs) < 0;
+		
+		fprintf(stderr, "Failed to execute\n");
 		return;
-	}
-	else if( child == 0 )
-	{
-		if ( execv(cmdPath, myArgs) < 0 )
-		{
-			fprintf(stderr, "Failed to execute\n");
-			return;
-		}
 	}
 	else
 	{
-		while( wait(&status) != child )
-			;
+		do
+		{
+			childWait = wait(&status);
+			if( childWait != child)
+				fprintf(stderr, "Process Terminated.\n");
+		} while (childWait != child);
 	}	
 }
