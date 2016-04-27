@@ -68,13 +68,14 @@ int main ()
 		
 		if( strcmp(cmdPath, "Command not found" ) == 0 )
 		{
-			printf("%s\n", cmdPath);
+			printf("%s: %s\n", myArgs[0],  cmdPath);
 		//	free (cmdPath);
 			continue;
 		}
 		else
 		{	
-			printf("cmdPath in Main = %s\n", cmdPath);
+		//	printf("cmdPath in Main = %s\n", cmdPath);
+			callCmd(cmdPath, myArgs);
 		}
 /*
 		for( i = 0 ; i < cmdTokens ; i++)

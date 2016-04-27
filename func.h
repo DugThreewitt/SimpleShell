@@ -17,4 +17,7 @@ void freemakeargv ( char ** argv );
 char * readLine();
 
 char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs );
+
+void callCmd ( char * cmdPath, char ** myArgs );
+
 #endif

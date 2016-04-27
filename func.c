@@ -127,18 +127,18 @@ char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs )
 	for( i ; i < pathTokens ; i++ )
 	{
 		strcpy(cmdPath, pathArgs[i]);
-		//snprintf(cmdPath, (sizeof(char) * MAX_CANON), "%s/%s", pathArgs[i], myArgs[0]);
-		strcat(cmdPath, "/");
-		strcat(cmdPath, myArgs[0]);
+		snprintf(cmdPath, (sizeof(char) * MAX_CANON), "%s/%s", pathArgs[i], myArgs[0]);
+		//strcat(cmdPath, "/");
+	//	strcat(cmdPath, myArgs[0]);
 
-		printf("cmdPath = %s\n", cmdPath);
+//		printf("cmdPath = %s\n", cmdPath);
 
 		if(access(cmdPath, F_OK) == 0)
 		{
-			printf("%s exists\n", cmdPath);
+		//	printf("%s exists\n", cmdPath);
 			if(access(cmdPath, X_OK) == 0)
 			{
-				printf("%s can execute.\n", cmdPath);
+		//		printf("%s can execute.\n", cmdPath);
 				return cmdPath;
 			}
 		}
@@ -149,4 +149,32 @@ char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs )
 
 
 
+}
+
+
+void callCmd ( char * cmdPath, char ** myArgs )
+{
+	pid_t child;
+	int status;
+
+	child = fork();
+
+	if( child < 0 )
+	{
+		fprintf(stderr, "Could not fork.\n");
+		return;
+	}
+	else if( child == 0 )
+	{
+		if ( execv(cmdPath, myArgs) < 0 )
+		{
+			fprintf(stderr, "Failed to execute\n");
+			return;
+		}
+	}
+	else
+	{
+		while( wait(&status) != child )
+			;
+	}	
 }
