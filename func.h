@@ -15,4 +15,6 @@ int makeargv ( const char * s, const char * delimiters, char *** argvp );
 void freemakeargv ( char ** argv );
 
 char * readLine();
+
+char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs );
 #endif

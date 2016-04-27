@@ -22,7 +22,7 @@ int main ()
 	char * input; // gets input from user
 	char cmdDelim[] = " \t"; // seperators for commands
 	char pathDelim[] = ":"; // seperator for PATH environment variable
-	char cmdPath[MAX_CANON]; // full path with command to be sent to exec
+	char * cmdPath; // full path with command to be sent to exec
 	char ** myArgs; // cmd and args array of strings
 	char ** pathArgs; // array of paths to search
 	const char * prompt = getenv("PS1"); // User prompt if defined in PS1
@@ -64,14 +64,26 @@ int main ()
 			return EXIT_FAILURE;
 		}
 
-
+		cmdPath = makeCmd(pathTokens, pathArgs, myArgs);
+		
+		if( strcmp(cmdPath, "Command not found" ) == 0 )
+		{
+			printf("%s\n", cmdPath);
+		//	free (cmdPath);
+			continue;
+		}
+		else
+		{	
+			printf("cmdPath in Main = %s\n", cmdPath);
+		}
+/*
 		for( i = 0 ; i < cmdTokens ; i++)
 		{
 			printf("cmd %d: %s\n", i, myArgs[i]  );
 		}
-
+*/
 		free (input);
-		
+		free (cmdPath);		
 	}
 	
 

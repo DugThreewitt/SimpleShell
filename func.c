@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <memory.h>
 #include <limits.h>
 
@@ -115,5 +116,37 @@ char * readLine()
 		}
 		pos ++;
 	}
+
+}
+
+char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs )
+{
+	char * cmdPath = malloc( sizeof(char) * MAX_CANON );
+	int i = 0;
+
+	for( i ; i < pathTokens ; i++ )
+	{
+		strcpy(cmdPath, pathArgs[i]);
+		//snprintf(cmdPath, (sizeof(char) * MAX_CANON), "%s/%s", pathArgs[i], myArgs[0]);
+		strcat(cmdPath, "/");
+		strcat(cmdPath, myArgs[0]);
+
+		printf("cmdPath = %s\n", cmdPath);
+
+		if(access(cmdPath, F_OK) == 0)
+		{
+			printf("%s exists\n", cmdPath);
+			if(access(cmdPath, X_OK) == 0)
+			{
+				printf("%s can execute.\n", cmdPath);
+				return cmdPath;
+			}
+		}
+	}
+
+	cmdPath = "Command not found";
+	return cmdPath;
+
+
 
 }
