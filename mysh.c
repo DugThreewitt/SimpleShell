@@ -29,8 +29,9 @@ int main ()
 	const char * prompt = getenv("PS1"); // User prompt if defined in PS1
 	const char * usrPath; // path to search from PATH or MYPATH environment variable
 	char * ps1Tmp = malloc(sizeof(char) * MAX_CANON * 4); // to get string from ps1
-	//char * dir; // to hold working directory from ps1
-	int cmdTokens, pathTokens, ps1Tokens, j = 0, i = 0, pos = 0;
+	//char * dir=malloc(sizeof(char) * MAX_CANON ) ; //to hold dir from PS1, Mara wanted me to put her name in the program
+	//char buff[PATH_MAX];
+	int cmdTokens, pathTokens, ps1Tokens, j = 0, i = 0, needDir = 0;
 
 	if( ( usrPath = getenv("MYPATH") ) == NULL ) // check for MYPATH Env Var
 	{
@@ -47,19 +48,37 @@ int main ()
 	{
 		if(prompt != NULL)
 		{
+		/*	for ( i = 0 ; i < strlen(prompt) ; i++)
+			{
+				if(prompt[i] == '\\')
+				{
+					if( prompt[i+1] == 'w' || prompt[i+1] == 'W' )
+					{
+						needDir = 1;
+					}
+				}
+			} */
+
 			ps1Tmp = parsePS( getenv("PS1") );
+
 			if( (ps1Tokens = makeargv( ps1Tmp, pathDelim, &ps1 ) ) == -1 )
 			{
 				fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
 				return EXIT_FAILURE;
 			}
-
+			
+			//printf("%s\n", ps1Tmp);
 
 			for( j = 0 ; j < ps1Tokens; j++)
 			{
 				printf("%s ", ps1[j]);
 			}
-		        printf("$ ");
+			/*if(needDir == 1)
+			{
+				dir = getcwd( buff, PATH_MAX );
+		        	printf("%s ", dir);
+			} */
+			printf("$ ");
 		}
 		else
 		{
@@ -84,24 +103,18 @@ int main ()
 		if( strcmp(cmdPath, "Command not found" ) == 0 )
 		{
 			printf("%s: %s\n", myArgs[0],  cmdPath);
-		//	free (cmdPath);
 			continue;
 		}
 		else
 		{	
-		//	printf("cmdPath in Main = %s\n", cmdPath);
 			callCmd(cmdPath, myArgs);
 		}
-/*
-		for( i = 0 ; i < cmdTokens ; i++)
-		{
-			printf("cmd %d: %s\n", i, myArgs[i]  );
-		}
-*/
+
+
 		free (input);
 		free (cmdPath);		
 		free (ps1Tmp);
-		free (ps1);
+//		free (ps1);
 	}
 	
 
