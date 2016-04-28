@@ -31,8 +31,7 @@ int main ()
 	char * ps1Tmp = malloc(sizeof(char) * MAX_CANON * 4); // to get string from ps1
 	char ** dir ; //to hold dir from PS1, Mara wanted me to put her name in the program
 	char * dirTmp = malloc(sizeof(char) * PATH_MAX);
-	char buff[PATH_MAX];
-	char dirPrint[128];
+	char buff[PATH_MAX]; // buffer for getcwd command
 	int cmdTokens, pathTokens, ps1Tokens, dirTokens, j = 0, i = 0, needDir = 0;
 
 	if( ( usrPath = getenv("MYPATH") ) == NULL ) // check for MYPATH Env Var
@@ -40,90 +39,83 @@ int main ()
 		usrPath = getenv("PATH");
 	}
 
-	if( (pathTokens = makeargv( usrPath, pathDelim, &pathArgs ) ) == -1 )
+	if( (pathTokens = makeargv( usrPath, pathDelim, &pathArgs ) ) == -1 ) // put each part of path into it's own array element for searching through
 	{
 		fprintf(stderr, "Failed to find search path. Exiting . . . \n");
 		return EXIT_FAILURE;
 	}
-	for ( i = 0 ; i < strlen(prompt) ; i++)
+
+	if(prompt != NULL) // parse prompt
 	{
-		if(prompt[i] == '\\')
+		for ( i = 0 ; i < strlen(prompt) ; i++)
 		{
-			if( prompt[i+1] == 'w' || prompt[i+1] == 'W' )
+			if(prompt[i] == '\\')
 			{
-				needDir = 1;
+				if( prompt[i+1] == 'w' || prompt[i+1] == 'W' ) // set flag for dir so it can change in each loop
+				{
+					needDir = 1;
+				}
 			}
+		} 
+
+		ps1Tmp = parsePS( getenv("PS1") ); // parse \u \h \w \W \n out of PS1
+
+		if( (ps1Tokens = makeargv( ps1Tmp, pathDelim, &ps1 ) ) == -1 ) // put each part of PS1 into it's own array element
+		{
+			fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
+			return EXIT_FAILURE;
 		}
-	} 
-
-	ps1Tmp = parsePS( getenv("PS1") );
-
-	if( (ps1Tokens = makeargv( ps1Tmp, pathDelim, &ps1 ) ) == -1 )
-	{
-		fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
-		return EXIT_FAILURE;
 	}
 
 	while (1)
 	{
-		if(prompt != NULL)
+		if(prompt != NULL) // if PS1 is set
 		{
 			if(needDir == 1)
 			{
-				dirTmp = getcwd(buff, PATH_MAX);
+				dirTmp = getcwd(buff, PATH_MAX); //get current working directory, getenv("PWD") does not work, its the last directory from bash
 
-				if( (dirTokens = makeargv( dirTmp, "/", &dir ) ) == -1 )
+				if( (dirTokens = makeargv( dirTmp, "/", &dir ) ) == -1 ) // parse directory out of /'s to print just current directory
 				{
 					fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
 					return EXIT_FAILURE;
 				}
 			}
 			
-			//printf("%s\n", ps1Tmp);
 
-			for( j = 0 ; j < ps1Tokens; j++)
+			for( j = 0 ; j < ps1Tokens; j++) // print prompt
 			{
 				if( strcmp(ps1[j], "DIR") == 0)
 				{
 					printf("%s ", dir[dirTokens - 1]);
 					continue;
 				}
-			/*	else if( strcmp(ps1[j], "\n") == 0 )
-				{
-					printf("\n");
-					continue;
-				}*/
 				else
 				{
 					printf("%s ", ps1[j]);
 				}
 			}
-			/*if(needDir == 1)
-			{
-				dir = getcwd( buff, PATH_MAX );
-		        	printf("%s ", dir);
-			} */
 			printf("$ ");
 		}
-		else
+		else // if PS1 is not set
 		{
 			printf("$ ");
 		}
 
-		input = readLine();
+		input = readLine(); // call function to read in user input
 
-		if( strcmp(input, "exit") == 0 )
+		if( strcmp(input, "exit") == 0 ) // if exit, quit mysh
 		{
 			break;
 		}
 		
-		if( ( cmdTokens = makeargv( input, cmdDelim, &myArgs) ) == -1 )
+		if( ( cmdTokens = makeargv( input, cmdDelim, &myArgs) ) == -1 ) // build array with each arg in it's own element
 		{
 			fprintf(stderr, "Parsing of commands failed. Exiting . . .");
 			return EXIT_FAILURE;
 		}
 
-		cmdPath = makeCmd(pathTokens, pathArgs, myArgs);
+		cmdPath = makeCmd(pathTokens, pathArgs, myArgs);// create command for execv
 		
 		if( strcmp(cmdPath, "Command not found" ) == 0 )
 		{
@@ -132,14 +124,12 @@ int main ()
 		}
 		else
 		{	
-			callCmd(cmdPath, myArgs);
+			callCmd(cmdPath, myArgs); // call function that executes the command
 		}
 
 
-		free (input);
-		free (cmdPath);		
-		//free (ps1Tmp);
-//		free (ps1);
+		free (input); // free input pointer
+		free (cmdPath);	// free comPath pointer	
 	}
 	
 

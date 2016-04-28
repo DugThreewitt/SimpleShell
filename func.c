@@ -105,9 +105,9 @@ char * readLine()
 	{
 		c = getchar();
 
-		if( c == EOF || c == '\n' )
+		if( c == EOF || c == '\n' ) // user is done entering input
 		{
-			input[pos] = '\0';	
+			input[pos] = '\0'; // ends input string	
 			return input;
 		}
 		else
@@ -121,22 +121,19 @@ char * readLine()
 
 char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs )
 {
-	char * cmdPath = malloc( sizeof(char) * MAX_CANON );
+	char * cmdPath = malloc( sizeof(char) * MAX_CANON ); 
 	int i = 0;
 
 	for( i ; i < pathTokens ; i++ )
 	{
 		strcpy(cmdPath, pathArgs[i]);
-		snprintf(cmdPath, (sizeof(char) * MAX_CANON), "%s/%s", pathArgs[i], myArgs[0]);
+		snprintf(cmdPath, (sizeof(char) * MAX_CANON), "%s/%s", pathArgs[i], myArgs[0]); //instead of multiple strcat's
 
-		//printf("cmdPath = %s\n", cmdPath);
 
-		if(access(cmdPath, F_OK) == 0)
+		if(access(cmdPath, F_OK) == 0) // check if file exists
 		{
-			//printf("%s exists\n", cmdPath);
-			if(access(cmdPath, X_OK) == 0)
+			if(access(cmdPath, X_OK) == 0) // check if file is executable
 			{
-				//printf("%s can execute.\n", cmdPath);
 				return cmdPath;
 			}
 		}
@@ -155,14 +152,13 @@ void callCmd ( char * cmdPath, char ** myArgs )
 	pid_t child, childWait;
 	int status;
 
-	if( strcmp(myArgs[0], "cd") == 0 )
+	if( strcmp(myArgs[0], "cd") == 0 ) // if user calls cd to change directory, don't fork
 	{
 		chdir(myArgs[1]);
 		return;
 	}
-	else
+	else // fork new process
 	{
-
 		child = fork();
 
 		if( child == 0 )
@@ -177,7 +173,7 @@ void callCmd ( char * cmdPath, char ** myArgs )
 			do
 			{
 				childWait = wait(&status);
-				if( childWait != child)
+				if( childWait != child )
 					fprintf(stderr, "Process Terminated.\n");
 			} while (childWait != child);
 		}	
@@ -188,8 +184,6 @@ char * parsePS( const char * prompt )
 {
 	int i;
 	char * ps1=malloc( sizeof(char) * MAX_CANON * 4 );
-//	char buf[PATH_MAX];
-//	char * dir;
 
 	for( i ; i < strlen(prompt) ; i++)
 	{
@@ -207,9 +201,7 @@ char * parsePS( const char * prompt )
 					break;
 				case 'w':
 				case 'W':
-				//	dir = getcwd(buf, PATH_MAX);
-					strcat(ps1, "DIR:");
-				//	strcat(ps1, ":");
+					strcat(ps1, "DIR:");//use DIR to replace in main
 					break;
 				case 'n':
 					strcat(ps1, "\n");
