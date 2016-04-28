@@ -188,8 +188,8 @@ char * parsePS( const char * prompt )
 {
 	int i;
 	char * ps1=malloc( sizeof(char) * MAX_CANON * 4 );
-	char buf[PATH_MAX];
-	char * dir;
+//	char buf[PATH_MAX];
+//	char * dir;
 
 	for( i ; i < strlen(prompt) ; i++)
 	{
@@ -207,12 +207,12 @@ char * parsePS( const char * prompt )
 					break;
 				case 'w':
 				case 'W':
-					dir = getcwd(buf, PATH_MAX);
-					strcat(ps1, dir);
-					strcat(ps1, ":");
+				//	dir = getcwd(buf, PATH_MAX);
+					strcat(ps1, "DIR:");
+				//	strcat(ps1, ":");
 					break;
 				case 'n':
-					strcat(ps1, "/n");
+					strcat(ps1, "\n");
 					strcat(ps1, ":");
 					break;
 			}

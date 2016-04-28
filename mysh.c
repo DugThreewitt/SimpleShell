@@ -29,9 +29,11 @@ int main ()
 	const char * prompt = getenv("PS1"); // User prompt if defined in PS1
 	const char * usrPath; // path to search from PATH or MYPATH environment variable
 	char * ps1Tmp = malloc(sizeof(char) * MAX_CANON * 4); // to get string from ps1
-	//char * dir=malloc(sizeof(char) * MAX_CANON ) ; //to hold dir from PS1, Mara wanted me to put her name in the program
-	//char buff[PATH_MAX];
-	int cmdTokens, pathTokens, ps1Tokens, j = 0, i = 0, needDir = 0;
+	char ** dir ; //to hold dir from PS1, Mara wanted me to put her name in the program
+	char * dirTmp = malloc(sizeof(char) * PATH_MAX);
+	char buff[PATH_MAX];
+	char dirPrint[128];
+	int cmdTokens, pathTokens, ps1Tokens, dirTokens, j = 0, i = 0, needDir = 0;
 
 	if( ( usrPath = getenv("MYPATH") ) == NULL ) // check for MYPATH Env Var
 	{
@@ -43,35 +45,58 @@ int main ()
 		fprintf(stderr, "Failed to find search path. Exiting . . . \n");
 		return EXIT_FAILURE;
 	}
+	for ( i = 0 ; i < strlen(prompt) ; i++)
+	{
+		if(prompt[i] == '\\')
+		{
+			if( prompt[i+1] == 'w' || prompt[i+1] == 'W' )
+			{
+				needDir = 1;
+			}
+		}
+	} 
+
+	ps1Tmp = parsePS( getenv("PS1") );
+
+	if( (ps1Tokens = makeargv( ps1Tmp, pathDelim, &ps1 ) ) == -1 )
+	{
+		fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
+		return EXIT_FAILURE;
+	}
 
 	while (1)
 	{
 		if(prompt != NULL)
 		{
-		/*	for ( i = 0 ; i < strlen(prompt) ; i++)
+			if(needDir == 1)
 			{
-				if(prompt[i] == '\\')
+				dirTmp = getcwd(buff, PATH_MAX);
+
+				if( (dirTokens = makeargv( dirTmp, "/", &dir ) ) == -1 )
 				{
-					if( prompt[i+1] == 'w' || prompt[i+1] == 'W' )
-					{
-						needDir = 1;
-					}
+					fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
+					return EXIT_FAILURE;
 				}
-			} */
-
-			ps1Tmp = parsePS( getenv("PS1") );
-
-			if( (ps1Tokens = makeargv( ps1Tmp, pathDelim, &ps1 ) ) == -1 )
-			{
-				fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
-				return EXIT_FAILURE;
 			}
 			
 			//printf("%s\n", ps1Tmp);
 
 			for( j = 0 ; j < ps1Tokens; j++)
 			{
-				printf("%s ", ps1[j]);
+				if( strcmp(ps1[j], "DIR") == 0)
+				{
+					printf("%s ", dir[dirTokens - 1]);
+					continue;
+				}
+			/*	else if( strcmp(ps1[j], "\n") == 0 )
+				{
+					printf("\n");
+					continue;
+				}*/
+				else
+				{
+					printf("%s ", ps1[j]);
+				}
 			}
 			/*if(needDir == 1)
 			{
@@ -113,7 +138,7 @@ int main ()
 
 		free (input);
 		free (cmdPath);		
-		free (ps1Tmp);
+		//free (ps1Tmp);
 //		free (ps1);
 	}
 	
