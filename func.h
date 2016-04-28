@@ -20,4 +20,7 @@ char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs );
 
 void callCmd ( char * cmdPath, char ** myArgs );
 
+char * parsePS( const char * prompt );
+
+
 #endif

@@ -25,9 +25,12 @@ int main ()
 	char * cmdPath; // full path with command to be sent to exec
 	char ** myArgs; // cmd and args array of strings
 	char ** pathArgs; // array of paths to search
+	char ** ps1; //array to hold ps1 search
 	const char * prompt = getenv("PS1"); // User prompt if defined in PS1
 	const char * usrPath; // path to search from PATH or MYPATH environment variable
-	int cmdTokens, pathTokens, i = 0, pos = 0;
+	char * ps1Tmp = malloc(sizeof(char) * MAX_CANON * 4); // to get string from ps1
+	//char * dir; // to hold working directory from ps1
+	int cmdTokens, pathTokens, ps1Tokens, j = 0, i = 0, pos = 0;
 
 	if( ( usrPath = getenv("MYPATH") ) == NULL ) // check for MYPATH Env Var
 	{
@@ -44,7 +47,19 @@ int main ()
 	{
 		if(prompt != NULL)
 		{
-			printf("%s ", prompt);
+			ps1Tmp = parsePS( getenv("PS1") );
+			if( (ps1Tokens = makeargv( ps1Tmp, pathDelim, &ps1 ) ) == -1 )
+			{
+				fprintf(stderr, "Failed to parse PS1. Exiting . . . \n");
+				return EXIT_FAILURE;
+			}
+
+
+			for( j = 0 ; j < ps1Tokens; j++)
+			{
+				printf("%s ", ps1[j]);
+			}
+		        printf("$ ");
 		}
 		else
 		{
@@ -85,6 +100,8 @@ int main ()
 */
 		free (input);
 		free (cmdPath);		
+		free (ps1Tmp);
+		free (ps1);
 	}
 	
 

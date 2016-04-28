@@ -128,17 +128,15 @@ char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs )
 	{
 		strcpy(cmdPath, pathArgs[i]);
 		snprintf(cmdPath, (sizeof(char) * MAX_CANON), "%s/%s", pathArgs[i], myArgs[0]);
-		//strcat(cmdPath, "/");
-	//	strcat(cmdPath, myArgs[0]);
 
-//		printf("cmdPath = %s\n", cmdPath);
+		//printf("cmdPath = %s\n", cmdPath);
 
 		if(access(cmdPath, F_OK) == 0)
 		{
-		//	printf("%s exists\n", cmdPath);
+			//printf("%s exists\n", cmdPath);
 			if(access(cmdPath, X_OK) == 0)
 			{
-		//		printf("%s can execute.\n", cmdPath);
+				//printf("%s can execute.\n", cmdPath);
 				return cmdPath;
 			}
 		}
@@ -157,22 +155,67 @@ void callCmd ( char * cmdPath, char ** myArgs )
 	pid_t child, childWait;
 	int status;
 
-	child = fork();
-
-	if( child == 0 )
+	if( strcmp(myArgs[0], "cd") == 0 )
 	{
-		execv(cmdPath, myArgs) < 0;
-		
-		fprintf(stderr, "Failed to execute\n");
+		chdir(myArgs[1]);
 		return;
 	}
 	else
 	{
-		do
+
+		child = fork();
+
+		if( child == 0 )
 		{
-			childWait = wait(&status);
-			if( childWait != child)
-				fprintf(stderr, "Process Terminated.\n");
-		} while (childWait != child);
+			execv(cmdPath, myArgs) < 0;
+		
+			fprintf(stderr, "Failed to execute\n");
+			return;
+		}
+		else
+		{
+			do
+			{
+				childWait = wait(&status);
+				if( childWait != child)
+					fprintf(stderr, "Process Terminated.\n");
+			} while (childWait != child);
+		}	
+	}
+}
+
+char * parsePS( const char * prompt )
+{
+	int i;
+	char * ps1=malloc( sizeof(char) * MAX_CANON * 4 );
+	
+	for( i ; i < strlen(prompt) ; i++)
+	{
+		if(prompt[i] == '\\')
+		{
+			switch(prompt[i+1])
+			{
+				case 'u':
+					strcat(ps1, getenv("USER"));
+					strcat(ps1, ":");
+					break;
+				case 'h':
+					strcat(ps1, getenv("HOSTNAME"));
+					strcat(ps1, ":");
+					break;
+				case 'w':
+				case 'W':
+					strcat(ps1, getenv("PWD"));
+					strcat(ps1, ":");
+					break;
+				case 'n':
+					strcat(ps1, "/n");
+					strcat(ps1, ":");
+					break;
+			}
+		}
 	}	
+	
+	return ps1;
+
 }
