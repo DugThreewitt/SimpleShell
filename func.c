@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <memory.h>
 #include <limits.h>
+#include <signal.h>
 
 #define IN
 #define OUT
@@ -152,17 +153,23 @@ void callCmd ( char * cmdPath, char ** myArgs )
 	pid_t child, childWait;
 	int status;
 
+
+
 	if( strcmp(myArgs[0], "cd") == 0 ) // if user calls cd to change directory, don't fork
 	{
-		chdir(myArgs[1]);
+		if(chdir(myArgs[1]) != 0)
+			fprintf(stderr, "Directory not available\n");
 		return;
 	}
 	else // fork new process
 	{
 		child = fork();
+		
 
 		if( child == 0 )
 		{
+
+			//signal(SIGINT, SIG_DFL);
 			execv(cmdPath, myArgs) < 0;
 		
 			fprintf(stderr, "Failed to execute\n");

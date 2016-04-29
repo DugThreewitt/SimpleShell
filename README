@@ -1,0 +1,24 @@
+Project 6 - DSTGH6 - Dug Threewitt - CS2750 - Mon / Wed
+
+mysh:
+
+	This program is a simple shell. There are no command line arguments. You launch it and it should work. All commands I tried worked. There are no interrupt handlers yet.
+
+	Usage: mysh
+
+	Commands attempted:
+				cd
+				ls
+				ls -l
+				ls -s
+				chmod
+				clear
+				mkdir
+				rm
+				vi
+				make clean
+				who
+
+				
+
+

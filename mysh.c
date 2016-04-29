@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "func.h"
@@ -69,6 +70,8 @@ int main ()
 
 	while (1)
 	{
+
+		//signal(SIGINT, SIG_IGN);
 		if(prompt != NULL) // if PS1 is set
 		{
 			if(needDir == 1)
