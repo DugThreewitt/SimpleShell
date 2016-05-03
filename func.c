@@ -107,10 +107,33 @@ char * readLine()
 
 	while (1)
 	{
-		c = getchar();
+//		c = getchar();
+
+		if(( c = getchar() )  == EOF )
+		{
+			printf("Ctrl-D \n");
+		//	fflush(stdin);
+			if(ferror(stdin) == 0 )
+			{
+				//printf("error: %d\n", ferror(stdin));
+				input = "CTRL-D";
+				return input;
+			}
+
+			input[pos] = '\0';
+			return input;
+		}
+		
 
 		if( c == EOF || c == '\n' ) // user is done entering input
 		{
+		/*	if(ferror(stdin) == 0 )
+			{
+				printf("\nerror: %d\n", ferror(stdin));
+				printf("Ctrl-d\n");
+				//input = "CTRL-D";
+				return input;
+			} */
 			input[pos] = '\0'; // ends input string	
 			return input;
 		}

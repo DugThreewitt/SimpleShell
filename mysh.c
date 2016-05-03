@@ -121,6 +121,11 @@ int main ()
 			break;
 		}
 		
+		if( strcmp( input, "CTRL-D" ) == 0)
+		{
+			printf("\nLogging out ...\n \n");
+			break;
+		}
 
 		if( ( cmdTokens = makeargv( input, cmdDelim, &myArgs) ) == -1 ) // build array with each arg in it's own element
 		{
