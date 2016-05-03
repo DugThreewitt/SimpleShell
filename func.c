@@ -13,10 +13,13 @@
 #include <memory.h>
 #include <limits.h>
 #include <signal.h>
+#include "func.h"
 
 #define IN
 #define OUT
 #define INOUT
+
+struct sigaction cmdHandler, mainHandler;
 
 int makeargv (
     IN	const char *   s, 		// String to be parsed
@@ -147,13 +150,36 @@ char * makeCmd ( int pathTokens, char ** pathArgs, char ** myArgs )
 
 }
 
+/*static void handleMainSignal( int ignore )
+{
+	printf("Ctrl-C called and ignored\n");
+}*/
+
+static void handleChildSignal( pid_t child )
+{
+	int status;
+
+	if ( child > 0 )
+	{
+		printf("Child pid: %d Ctrl-C called\n", child);
+		kill(child, SIGKILL);
+		waitpid(child, status);
+	}
+
+	sigaction(SIGINT, &mainHandler, NULL);
+}
 
 void callCmd ( char * cmdPath, char ** myArgs )
 {
 	pid_t child, childWait;
 	int status;
 
+	cmdHandler.sa_handler = handleChildSignal;
+	sigemptyset(&cmdHandler.sa_mask);
+	sigaddset(&cmdHandler.sa_mask, SIGINT);
+	cmdHandler.sa_flags=0;
 
+	sigaction(SIGINT, &cmdHandler, &mainHandler);
 
 	if( strcmp(myArgs[0], "cd") == 0 ) // if user calls cd to change directory, don't fork
 	{

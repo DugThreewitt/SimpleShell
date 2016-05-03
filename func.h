@@ -6,6 +6,7 @@
  * *********************************************************************** */
 
 #include <string.h>
+#include <signal.h>
 
 #ifndef FUNC_H_
 #define FUNC_H_
@@ -22,5 +23,8 @@ void callCmd ( char * cmdPath, char ** myArgs );
 
 char * parsePS( const char * prompt );
 
+static void handleChildSignal( pid_t child );
+
+//static void handleMainSignal( int ignore );
 
 #endif

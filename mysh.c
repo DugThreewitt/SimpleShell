@@ -17,6 +17,9 @@
 #include <sys/wait.h>
 #include "func.h"
 
+struct sigaction mainHandler, cmdHandler;
+static void handleMainSignal( int ignore );
+
 int main ()
 {
 	char c;
@@ -34,6 +37,12 @@ int main ()
 	char * dirTmp = malloc(sizeof(char) * PATH_MAX);
 	char buff[PATH_MAX]; // buffer for getcwd command
 	int cmdTokens, pathTokens, ps1Tokens, dirTokens, j = 0, i = 0, needDir = 0;
+
+	mainHandler.sa_handler = handleMainSignal;
+	sigemptyset(&mainHandler.sa_mask);
+	sigaddset(&mainHandler.sa_mask, SIGINT);
+	cmdHandler.sa_flags=0;
+	sigaction(SIGINT, &mainHandler, NULL);
 
 	if( ( usrPath = getenv("MYPATH") ) == NULL ) // check for MYPATH Env Var
 	{
@@ -105,13 +114,14 @@ int main ()
 			printf("$ ");
 		}
 
-		input = readLine(); // call function to read in user input
+		input = readLine();  // call function to read in user input
 
 		if( strcmp(input, "exit") == 0 ) // if exit, quit mysh
 		{
 			break;
 		}
 		
+
 		if( ( cmdTokens = makeargv( input, cmdDelim, &myArgs) ) == -1 ) // build array with each arg in it's own element
 		{
 			fprintf(stderr, "Parsing of commands failed. Exiting . . .");
@@ -137,3 +147,9 @@ int main ()
 	
 
 }
+
+static void handleMainSignal( int ignore )
+{
+	printf("Ctrl-C called and ignored\n");
+}
+
