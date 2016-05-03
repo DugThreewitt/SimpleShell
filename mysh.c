@@ -150,6 +150,6 @@ int main ()
 
 static void handleMainSignal( int ignore )
 {
-	printf("Ctrl-C called and ignored\n");
+	printf("\n\nCtrl-C called and ignored\n");
 }
 
